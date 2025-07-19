@@ -2,15 +2,77 @@
 
 import { useState } from "react";
 import { postItem } from "@/app/utils/postItem";
+import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 
 export default function PostForm({ userEmail }: { userEmail: string }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<"lost" | "found">("lost");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  async function uploadPhoto(file: File) {
+    const fileName = `${Date.now()}-${file.name}`;
+    console.log("📸 Uploading photo:", fileName);
+    console.log("📁 File details:", {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+    
+    try {
+      // Check if storage bucket exists and is accessible
+      console.log("🔍 Checking storage bucket access...");
+      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+      console.log("Available buckets:", buckets);
+      if (bucketError) {
+        console.error("❌ Bucket list error:", bucketError);
+        return null;
+      }
+
+      // Attempt to upload
+      console.log("⬆️ Attempting upload to 'item-photos' bucket...");
+      const { data, error } = await supabase.storage
+        .from("item-photos")
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error("❌ Upload error details:", {
+          message: error.message,
+          error: error
+        });
+        
+        // More specific error messages
+        if (error.message?.includes('not found')) {
+          console.error("💡 Bucket 'item-photos' doesn't exist. Create it in Supabase Storage.");
+        } else if (error.message?.includes('permission')) {
+          console.error("💡 Permission denied. Check RLS policies or make bucket public.");
+        }
+        return null;
+      }
+
+      console.log("✅ Upload successful:", data);
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("item-photos")
+        .getPublicUrl(fileName);
+
+      const publicUrl = urlData.publicUrl;
+      console.log("🌐 Public URL generated:", publicUrl);
+      
+      return publicUrl;
+    } catch (err) {
+      console.error("💥 Unexpected upload error:", err);
+      return null;
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,12 +81,27 @@ export default function PostForm({ userEmail }: { userEmail: string }) {
 
     console.log("🚀 Posting item:", { title, description, status, userEmail });
 
+    let finalPhotoUrl = photoUrl;
+    
+    // Upload file if one is selected
+    if (photoFile) {
+      console.log("📤 Uploading photo file...");
+      const uploadedUrl = await uploadPhoto(photoFile);
+      if (uploadedUrl) {
+        finalPhotoUrl = uploadedUrl;
+      } else {
+        setMessage("❌ Error uploading photo. Check console for details.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const { data, error } = await postItem({
       title,
       description,
       status,
       posted_by: userEmail,
-      photo_url: photoUrl,
+      photo_url: finalPhotoUrl,
     });
 
     setLoading(false);
@@ -38,6 +115,7 @@ export default function PostForm({ userEmail }: { userEmail: string }) {
       // Reset form
       setTitle("");
       setDescription("");
+      setPhotoFile(null);
       setPhotoUrl("");
     }
   }
@@ -91,19 +169,79 @@ export default function PostForm({ userEmail }: { userEmail: string }) {
           />
         </div>
 
-        {/* Photo URL */}
+        {/* Photo Upload Section */}
         <div>
-          <label htmlFor="photoUrl" className="block text-sm font-medium mb-2">
-            Photo URL (optional)
+          <label className="block text-sm font-medium mb-2">
+            Photo
           </label>
-          <input
-            type="url"
-            id="photoUrl"
-            placeholder="https://example.com/photo.jpg"
-            value={photoUrl}
-            onChange={(e) => setPhotoUrl(e.target.value)}
-            className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-yellow-400 focus:outline-none"
-          />
+          
+          {/* File Upload */}
+          <div className="mb-3">
+            <label htmlFor="photoFile" className="block text-xs text-gray-400 mb-1">
+              Upload from device (recommended)
+            </label>
+            <input
+              type="file"
+              id="photoFile"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setPhotoFile(e.target.files[0]);
+                  setPhotoUrl(""); // Clear URL if file is selected
+                }
+              }}
+              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-yellow-400 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-yellow-400 file:text-black hover:file:bg-yellow-300"
+            />
+          </div>
+
+          {/* OR divider */}
+          <div className="flex items-center my-3">
+            <div className="flex-grow border-t border-gray-600"></div>
+            <span className="px-3 text-gray-400 text-sm">OR</span>
+            <div className="flex-grow border-t border-gray-600"></div>
+          </div>
+
+          {/* URL Input */}
+          <div>
+            <label htmlFor="photoUrl" className="block text-xs text-gray-400 mb-1">
+              Photo URL
+            </label>
+            <input
+              type="url"
+              id="photoUrl"
+              placeholder="https://example.com/photo.jpg"
+              value={photoUrl}
+              onChange={(e) => {
+                setPhotoUrl(e.target.value);
+                if (e.target.value) setPhotoFile(null); // Clear file if URL is entered
+              }}
+              disabled={!!photoFile}
+              className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:border-yellow-400 focus:outline-none disabled:bg-gray-700 disabled:text-gray-500"
+            />
+          </div>
+          
+          {/* Photo preview */}
+          {(photoFile || photoUrl) && (
+            <div className="mt-3 p-3 bg-gray-700 rounded">
+              <p className="text-sm text-gray-300 mb-2">Preview:</p>
+              {photoFile ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400">📁</span>
+                  <span className="text-sm">{photoFile.name}</span>
+                  <span className="text-xs text-gray-400">({(photoFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+              ) : (
+                <img 
+                  src={photoUrl} 
+                  alt="Preview" 
+                  className="max-w-full h-32 object-cover rounded"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Status Selection */}
@@ -136,6 +274,17 @@ export default function PostForm({ userEmail }: { userEmail: string }) {
               : "bg-red-900 text-red-300"
           }`}>
             {message}
+            {message.includes("Error uploading photo") && (
+              <div className="mt-3 text-left text-sm">
+                <p className="font-semibold mb-2">🔧 Setup Required:</p>
+                <ol className="space-y-1 text-xs">
+                  <li>1. Go to Supabase Dashboard → Storage</li>
+                  <li>2. Create new bucket named: <code className="bg-gray-800 px-1 rounded">item-photos</code></li>
+                  <li>3. Make bucket public or set RLS policies</li>
+                  <li>4. Check console for detailed error info</li>
+                </ol>
+              </div>
+            )}
           </div>
         )}
       </form>

@@ -2,7 +2,7 @@
 
 1. Setup supbase and project as a whole (DONE)
 2. Build login screen, Lost and Found feeds (DONE)
-3. Build post items (upload and photo data)
+3. Build post items (upload and photo data) (POST DONE IMAGE IN PROGRESS)
 4. Add "Contact posters buttons" Mail to links 
 5. Lock Down RLS again 
 6. Polish UI: Bottom tabs for mobile users sidebars for pc users 
