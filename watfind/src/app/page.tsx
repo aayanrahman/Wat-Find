@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -28,6 +30,17 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
       <div className="text-center w-full max-w-md">
       <h1 className="text-4xl font-bold mb-4">WATFind</h1>
+      
+      {/* Navigation buttons to test pages */}
+      <div className="mb-6 flex gap-4 justify-center">
+        <Link href="/lost" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
+          Lost Items
+        </Link>
+        <Link href="/found" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors">
+          Found Items
+        </Link>
+      </div>
+      
       <input
         type="email"
         placeholder="you@uwaterloo.ca"
