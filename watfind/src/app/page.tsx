@@ -32,12 +32,15 @@ export default function Home() {
       <h1 className="text-4xl font-bold mb-4">WATFind</h1>
       
       {/* Navigation buttons to test pages */}
-      <div className="mb-6 flex gap-4 justify-center">
+      <div className="mb-6 flex gap-2 justify-center flex-wrap">
         <Link href="/lost" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
           Lost Items
         </Link>
         <Link href="/found" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors">
           Found Items
+        </Link>
+        <Link href="/post" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors">
+          Post Item
         </Link>
       </div>
       

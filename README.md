@@ -8,3 +8,5 @@
 6. Polish UI: Bottom tabs for mobile users sidebars for pc users 
 7. deploy on vercel 
 8. add rewards fields to gamify the expereience (like honor in red dead redemption more honor = more trustabale)
+
+Also need to ensure the email verification is working only those verified can check around and post 
