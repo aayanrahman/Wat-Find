@@ -15,7 +15,9 @@ export default function Home() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: "http://localhost:3000" // later change to production URL
+        emailRedirectTo: process.env.NODE_ENV === 'production' 
+          ? "https://watfind-f30dqenh0-aayanrahmans-projects.vercel.app" 
+          : "http://localhost:3000"
       }
     });
     if (error) {
