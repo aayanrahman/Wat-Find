@@ -103,7 +103,7 @@ export default function Feed({ status }: FeedProps) {
           🐛 <strong>Debug Info:</strong>
         </div>
         <div className="text-gray-400">
-          • Looking for status: <span className="text-yellow-400">"{status}"</span>
+          • Looking for status: <span className="text-yellow-400">&quot;{status}&quot;</span>
         </div>
         <div className="text-gray-400">
           • Found: <span className="text-green-400">{items.length}</span> items
@@ -119,8 +119,8 @@ export default function Feed({ status }: FeedProps) {
           <div className="text-sm">
             This could mean:
             <ul className="mt-2 text-left max-w-md mx-auto">
-              <li>• No items with status "{status}" in database</li>
-              <li>• Status values don't match exactly (check console)</li>
+              <li>• No items with status &quot;{status}&quot; in database</li>
+              <li>• Status values don&apos;t match exactly (check console)</li>
               <li>• Database connection issues</li>
             </ul>
           </div>

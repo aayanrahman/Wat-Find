@@ -3,7 +3,7 @@
 1. Setup supbase and project as a whole (DONE)
 2. Build login screen, Lost and Found feeds (DONE)
 3. Build post items (upload and photo data) (Image set is complete)
-4. Add "Contact posters buttons" Mail to links 
+4. Add "Contact posters buttons" Mail to links (contact posters done)
 5. Lock Down RLS again 
 6. Polish UI: Bottom tabs for mobile users sidebars for pc users 
 7. deploy on vercel 

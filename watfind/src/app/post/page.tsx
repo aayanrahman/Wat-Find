@@ -23,7 +23,7 @@ export default async function PostPage() {
           <div className="bg-gray-800 p-6 rounded-lg mb-6">
             <h2 className="text-xl mb-4">🔒 Authentication Required</h2>
             <p className="text-gray-300 mb-4">
-              Normally you'd need to log in, but for testing purposes:
+              Normally you&apos;d need to log in, but for testing purposes:
             </p>
             
             {/* Test Mode */}
@@ -40,7 +40,7 @@ export default async function PostPage() {
               <ol className="text-left mt-2 space-y-1">
                 <li>1. Go back to home</li>
                 <li>2. Enter your @uwaterloo.ca email</li>
-                <li>3. Click "Send Magic Link"</li>
+                <li>3. Click &quot;Send Magic Link&quot;</li>
                 <li>4. Check your email and click the link</li>
               </ol>
             </div>

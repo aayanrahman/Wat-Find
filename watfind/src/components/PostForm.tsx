@@ -4,6 +4,7 @@ import { useState } from "react";
 import { postItem } from "@/app/utils/postItem";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function PostForm({ userEmail }: { userEmail: string }) {
   const [title, setTitle] = useState("");
@@ -231,14 +232,17 @@ export default function PostForm({ userEmail }: { userEmail: string }) {
                   <span className="text-xs text-gray-400">({(photoFile.size / 1024 / 1024).toFixed(2)} MB)</span>
                 </div>
               ) : (
-                <img 
-                  src={photoUrl} 
-                  alt="Preview" 
-                  className="max-w-full h-32 object-cover rounded"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
+                <div className="relative w-full h-32">
+                  <Image 
+                    src={photoUrl} 
+                    alt="Preview" 
+                    fill
+                    className="object-cover rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
               )}
             </div>
           )}
